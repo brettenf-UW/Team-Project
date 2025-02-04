@@ -1,0 +1,44 @@
+2025-02-04 22:34:33,704 | Using device: cpu
+2025-02-04 22:34:37,447 | Epoch 0: MSE = 0.0014, R² = -3.1337, Correlation = 0.7935, MAPE = 16.3%
+2025-02-04 22:34:37,451 | Epoch 0: Train Loss = 0.1066, MSE = 0.0014, R² = -3.1337
+2025-02-04 22:34:37,659 | Epoch 0: Val Loss = 0.1091, MSE = 0.0002, R² = 0.5168
+2025-02-04 22:34:37,682 | Saved new best model with validation loss: 0.1091
+2025-02-04 22:34:40,726 | Epoch 1: MSE = 0.0004, R² = -0.0457, Correlation = 0.7953, MAPE = 12.7%
+2025-02-04 22:34:40,728 | Epoch 1: Train Loss = 0.1040, MSE = 0.0004, R² = -0.0457
+2025-02-04 22:34:40,942 | Epoch 1: Val Loss = 0.1033, MSE = 0.0000, R² = 0.8690
+2025-02-04 22:34:40,978 | Saved new best model with validation loss: 0.1033
+2025-02-04 22:34:43,546 | Epoch 2: MSE = 0.0002, R² = 0.3937, Correlation = 0.8748, MAPE = 10.5%
+2025-02-04 22:34:43,549 | Epoch 2: Train Loss = 0.1035, MSE = 0.0002, R² = 0.3937
+2025-02-04 22:34:43,800 | Epoch 2: Val Loss = 0.1028, MSE = 0.0001, R² = 0.7976
+2025-02-04 22:34:43,821 | Saved new best model with validation loss: 0.1028
+2025-02-04 22:34:47,659 | Epoch 3: MSE = 0.0002, R² = 0.5465, Correlation = 0.8827, MAPE = 8.5%
+2025-02-04 22:34:47,663 | Epoch 3: Train Loss = 0.1034, MSE = 0.0002, R² = 0.5465
+2025-02-04 22:34:48,084 | Epoch 3: Val Loss = 0.1030, MSE = 0.0001, R² = 0.7925
+2025-02-04 22:34:51,059 | Epoch 4: MSE = 0.0001, R² = 0.6530, Correlation = 0.9062, MAPE = 9.4%
+2025-02-04 22:34:51,060 | Epoch 4: Train Loss = 0.1032, MSE = 0.0001, R² = 0.6530
+2025-02-04 22:34:51,324 | Epoch 4: Val Loss = 0.1029, MSE = 0.0001, R² = 0.7546
+2025-02-04 22:34:54,236 | Epoch 5: MSE = 0.0001, R² = 0.6779, Correlation = 0.9266, MAPE = 7.9%
+2025-02-04 22:34:54,239 | Epoch 5: Train Loss = 0.1032, MSE = 0.0001, R² = 0.6779
+2025-02-04 22:34:54,505 | Epoch 5: Val Loss = 0.1027, MSE = 0.0001, R² = 0.8249
+2025-02-04 22:34:54,527 | Saved new best model with validation loss: 0.1027
+2025-02-04 22:34:57,296 | Epoch 6: MSE = 0.0001, R² = 0.7512, Correlation = 0.9328, MAPE = 7.2%
+2025-02-04 22:34:57,301 | Epoch 6: Train Loss = 0.1030, MSE = 0.0001, R² = 0.7512
+2025-02-04 22:34:57,600 | Epoch 6: Val Loss = 0.1025, MSE = 0.0000, R² = 0.8814
+2025-02-04 22:34:57,626 | Saved new best model with validation loss: 0.1025
+2025-02-04 22:35:00,259 | Epoch 7: MSE = 0.0001, R² = 0.7824, Correlation = 0.9335, MAPE = 6.4%
+2025-02-04 22:35:00,261 | Epoch 7: Train Loss = 0.1030, MSE = 0.0001, R² = 0.7824
+2025-02-04 22:35:00,570 | Epoch 7: Val Loss = 0.1028, MSE = 0.0000, R² = 0.9056
+2025-02-04 22:35:03,300 | Epoch 8: MSE = 0.0001, R² = 0.8029, Correlation = 0.9243, MAPE = 5.7%
+2025-02-04 22:35:03,302 | Epoch 8: Train Loss = 0.1030, MSE = 0.0001, R² = 0.8029
+2025-02-04 22:35:03,559 | Epoch 8: Val Loss = 0.1033, MSE = 0.0000, R² = 0.8945
+2025-02-04 22:35:06,297 | Epoch 9: MSE = 0.0001, R² = 0.8375, Correlation = 0.9516, MAPE = 6.0%
+2025-02-04 22:35:06,300 | Epoch 9: Train Loss = 0.1030, MSE = 0.0001, R² = 0.8375
+2025-02-04 22:35:06,566 | Epoch 9: Val Loss = 0.1025, MSE = 0.0000, R² = 0.9334
+2025-02-04 22:35:06,592 | Saved new best model with validation loss: 0.1025
+2025-02-04 22:35:09,436 | Epoch 10: MSE = 0.0001, R² = 0.8508, Correlation = 0.9675, MAPE = 6.0%
+2025-02-04 22:35:09,439 | Epoch 10: Train Loss = 0.1029, MSE = 0.0001, R² = 0.8508
+2025-02-04 22:35:09,686 | Epoch 10: Val Loss = 0.1027, MSE = 0.0000, R² = 0.9180
+2025-02-04 22:35:12,380 | Epoch 11: MSE = 0.0000, R² = 0.8542, Correlation = 0.9794, MAPE = 6.3%
+2025-02-04 22:35:12,383 | Epoch 11: Train Loss = 0.1030, MSE = 0.0000, R² = 0.8542
+2025-02-04 22:35:12,625 | Epoch 11: Val Loss = 0.1029, MSE = 0.0000, R² = 0.8949
+2025-02-04 22:35:12,626 | Early stopping triggered!

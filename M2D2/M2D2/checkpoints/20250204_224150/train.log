@@ -1,0 +1,49 @@
+2025-02-04 22:41:50,591 | Using device: cpu
+2025-02-04 22:41:57,481 | Epoch 0: MSE = 0.0015, R² = -3.4225, Correlation = 0.6791, MAPE = 18.3%
+2025-02-04 22:41:57,485 | Epoch 0: Train Loss = 0.1104, MSE = 0.0015, R² = -3.4225
+2025-02-04 22:41:57,744 | Epoch 0: Val Loss = 0.1094, MSE = 0.0002, R² = 0.3984
+2025-02-04 22:41:57,775 | Saved new best model with validation loss: 0.1094
+2025-02-04 22:42:00,687 | Epoch 1: MSE = 0.0004, R² = -0.1303, Correlation = 0.7990, MAPE = 11.6%
+2025-02-04 22:42:00,690 | Epoch 1: Train Loss = 0.1070, MSE = 0.0004, R² = -0.1303
+2025-02-04 22:42:00,925 | Epoch 1: Val Loss = 0.1035, MSE = 0.0001, R² = 0.7609
+2025-02-04 22:42:00,957 | Saved new best model with validation loss: 0.1035
+2025-02-04 22:42:04,541 | Epoch 2: MSE = 0.0003, R² = 0.2182, Correlation = 0.7818, MAPE = 11.8%
+2025-02-04 22:42:04,543 | Epoch 2: Train Loss = 0.1067, MSE = 0.0003, R² = 0.2182
+2025-02-04 22:42:04,822 | Epoch 2: Val Loss = 0.1022, MSE = 0.0001, R² = 0.6936
+2025-02-04 22:42:04,846 | Saved new best model with validation loss: 0.1022
+2025-02-04 22:42:07,653 | Epoch 3: MSE = 0.0002, R² = 0.4213, Correlation = 0.8875, MAPE = 9.2%
+2025-02-04 22:42:07,656 | Epoch 3: Train Loss = 0.1065, MSE = 0.0002, R² = 0.4213
+2025-02-04 22:42:07,910 | Epoch 3: Val Loss = 0.1019, MSE = 0.0001, R² = 0.8138
+2025-02-04 22:42:07,932 | Saved new best model with validation loss: 0.1019
+2025-02-04 22:42:11,588 | Epoch 4: MSE = 0.0001, R² = 0.5839, Correlation = 0.9047, MAPE = 8.4%
+2025-02-04 22:42:11,593 | Epoch 4: Train Loss = 0.1062, MSE = 0.0001, R² = 0.5839
+2025-02-04 22:42:12,142 | Epoch 4: Val Loss = 0.1019, MSE = 0.0001, R² = 0.8239
+2025-02-04 22:42:15,283 | Epoch 5: MSE = 0.0001, R² = 0.6568, Correlation = 0.9009, MAPE = 7.8%
+2025-02-04 22:42:15,286 | Epoch 5: Train Loss = 0.1061, MSE = 0.0001, R² = 0.6568
+2025-02-04 22:42:15,572 | Epoch 5: Val Loss = 0.1018, MSE = 0.0000, R² = 0.8649
+2025-02-04 22:42:15,595 | Saved new best model with validation loss: 0.1018
+2025-02-04 22:42:18,518 | Epoch 6: MSE = 0.0001, R² = 0.7101, Correlation = 0.9392, MAPE = 7.2%
+2025-02-04 22:42:18,521 | Epoch 6: Train Loss = 0.1061, MSE = 0.0001, R² = 0.7101
+2025-02-04 22:42:18,759 | Epoch 6: Val Loss = 0.1018, MSE = 0.0000, R² = 0.8881
+2025-02-04 22:42:18,783 | Saved new best model with validation loss: 0.1018
+2025-02-04 22:42:21,598 | Epoch 7: MSE = 0.0001, R² = 0.7597, Correlation = 0.9217, MAPE = 6.7%
+2025-02-04 22:42:21,602 | Epoch 7: Train Loss = 0.1059, MSE = 0.0001, R² = 0.7597
+2025-02-04 22:42:21,893 | Epoch 7: Val Loss = 0.1019, MSE = 0.0000, R² = 0.8794
+2025-02-04 22:42:24,726 | Epoch 8: MSE = 0.0001, R² = 0.8058, Correlation = 0.9441, MAPE = 5.7%
+2025-02-04 22:42:24,728 | Epoch 8: Train Loss = 0.1059, MSE = 0.0001, R² = 0.8058
+2025-02-04 22:42:25,070 | Epoch 8: Val Loss = 0.1016, MSE = 0.0000, R² = 0.9177
+2025-02-04 22:42:25,094 | Saved new best model with validation loss: 0.1016
+2025-02-04 22:42:27,853 | Epoch 9: MSE = 0.0001, R² = 0.8117, Correlation = 0.9415, MAPE = 5.9%
+2025-02-04 22:42:27,855 | Epoch 9: Train Loss = 0.1059, MSE = 0.0001, R² = 0.8117
+2025-02-04 22:42:28,116 | Epoch 9: Val Loss = 0.1025, MSE = 0.0000, R² = 0.9296
+2025-02-04 22:42:31,033 | Epoch 10: MSE = 0.0001, R² = 0.8174, Correlation = 0.9506, MAPE = 6.8%
+2025-02-04 22:42:31,036 | Epoch 10: Train Loss = 0.1060, MSE = 0.0001, R² = 0.8174
+2025-02-04 22:42:31,344 | Epoch 10: Val Loss = 0.1018, MSE = 0.0000, R² = 0.9073
+2025-02-04 22:42:34,328 | Epoch 11: MSE = 0.0000, R² = 0.8539, Correlation = 0.9692, MAPE = 4.2%
+2025-02-04 22:42:34,331 | Epoch 11: Train Loss = 0.1058, MSE = 0.0000, R² = 0.8539
+2025-02-04 22:42:34,608 | Epoch 11: Val Loss = 0.1016, MSE = 0.0000, R² = 0.9504
+2025-02-04 22:42:34,633 | Saved new best model with validation loss: 0.1016
+2025-02-04 22:42:37,469 | Epoch 12: MSE = 0.0000, R² = 0.8648, Correlation = 0.9661, MAPE = 4.3%
+2025-02-04 22:42:37,471 | Epoch 12: Train Loss = 0.1058, MSE = 0.0000, R² = 0.8648
+2025-02-04 22:42:37,798 | Epoch 12: Val Loss = 0.1017, MSE = 0.0000, R² = 0.9530
+2025-02-04 22:42:37,800 | Early stopping triggered!
