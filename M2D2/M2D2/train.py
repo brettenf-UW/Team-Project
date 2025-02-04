@@ -8,6 +8,8 @@ from torch.utils.tensorboard import SummaryWriter
 import time
 from datetime import datetime
 from sklearn.metrics import r2_score
+from scipy.stats import pearsonr
+import numpy as np
 
 from model.model import StatMechThermodynamicModule, ModelConfig
 from model.dataset import EnhancedStorageDataGenerator, StorageDataset, DataConfig, collate_fn
@@ -75,10 +77,27 @@ def load_config(config_path: str) -> dict:
         return yaml.safe_load(f)
 
 def calculate_metrics(outputs: torch.Tensor, targets: torch.Tensor) -> dict:
-    """Calculate MSE and R² score."""
+    """Calculate MSE, R², correlation, and MAPE."""
+    # Convert to numpy for calculations
+    outputs_np = outputs.detach().cpu().numpy()
+    targets_np = targets.cpu().numpy()
+    
+    # Calculate existing metrics
     mse = torch.mean((outputs - targets) ** 2).item()
-    r2 = r2_score(targets.cpu().numpy(), outputs.detach().cpu().numpy())
-    return {'mse': mse, 'r2': r2}
+    r2 = r2_score(targets_np, outputs_np)
+    
+    # Add correlation coefficient
+    corr, _ = pearsonr(targets_np.flatten(), outputs_np.flatten())
+    
+    # Calculate MAPE (Mean Absolute Percentage Error)
+    mape = np.mean(np.abs((targets_np - outputs_np) / (targets_np + 1e-8))) * 100
+    
+    return {
+        'mse': mse, 
+        'r2': r2,
+        'correlation': corr,
+        'mape': mape
+    }
 
 def train_epoch(
     model: torch.nn.Module,
@@ -147,7 +166,8 @@ def train_epoch(
         pbar.set_postfix({
             'loss': loss_dict['total_loss'].item(),
             'mse': metrics['mse'],
-            'r2': metrics['r2']
+            'corr': f"{metrics['correlation']:.3f}",
+            'mape': f"{metrics['mape']:.1f}%"
         })
     
     # Average losses
@@ -167,7 +187,10 @@ def train_epoch(
     # Log metrics
     writer.add_scalar('Metrics/train_mse', avg_mse, epoch)
     writer.add_scalar('Metrics/train_r2', avg_r2, epoch)
-    logging.info(f'Epoch {epoch}: MSE = {avg_mse:.4f}, R² = {avg_r2:.4f}')
+    writer.add_scalar('Metrics/train_correlation', metrics['correlation'], epoch)
+    writer.add_scalar('Metrics/train_mape', metrics['mape'], epoch)
+    logging.info(f'Epoch {epoch}: MSE = {avg_mse:.4f}, R² = {avg_r2:.4f}, '
+                f'Correlation = {metrics["correlation"]:.4f}, MAPE = {metrics["mape"]:.1f}%')
     
     return avg_loss, avg_components, {'mse': avg_mse, 'r2': avg_r2}
 
