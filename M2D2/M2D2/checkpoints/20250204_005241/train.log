@@ -1,0 +1,34 @@
+2025-02-04 00:52:41,299 | Using device: cpu
+2025-02-04 00:52:46,774 | Epoch 0: Train Loss = 0.1072
+2025-02-04 00:52:47,136 | Epoch 0: Validation Loss = 0.1068
+2025-02-04 00:52:47,187 | Saved new best model with validation loss: 0.1068
+2025-02-04 00:52:51,238 | Epoch 1: Train Loss = 0.1047
+2025-02-04 00:52:51,602 | Epoch 1: Validation Loss = 0.1016
+2025-02-04 00:52:51,645 | Saved new best model with validation loss: 0.1016
+2025-02-04 00:52:56,622 | Epoch 2: Train Loss = 0.1041
+2025-02-04 00:52:56,977 | Epoch 2: Validation Loss = 0.1019
+2025-02-04 00:53:00,401 | Epoch 3: Train Loss = 0.1038
+2025-02-04 00:53:00,713 | Epoch 3: Validation Loss = 0.1017
+2025-02-04 00:53:04,311 | Epoch 4: Train Loss = 0.1036
+2025-02-04 00:53:04,619 | Epoch 4: Validation Loss = 0.1015
+2025-02-04 00:53:04,658 | Saved new best model with validation loss: 0.1015
+2025-02-04 00:53:08,345 | Epoch 5: Train Loss = 0.1036
+2025-02-04 00:53:08,708 | Epoch 5: Validation Loss = 0.1015
+2025-02-04 00:53:08,747 | Saved new best model with validation loss: 0.1015
+2025-02-04 00:53:13,277 | Epoch 6: Train Loss = 0.1034
+2025-02-04 00:53:13,650 | Epoch 6: Validation Loss = 0.1014
+2025-02-04 00:53:13,703 | Saved new best model with validation loss: 0.1014
+2025-02-04 00:53:17,333 | Epoch 7: Train Loss = 0.1034
+2025-02-04 00:53:17,656 | Epoch 7: Validation Loss = 0.1014
+2025-02-04 00:53:17,695 | Saved new best model with validation loss: 0.1014
+2025-02-04 00:53:20,500 | Epoch 8: Train Loss = 0.1033
+2025-02-04 00:53:20,727 | Epoch 8: Validation Loss = 0.1012
+2025-02-04 00:53:20,756 | Saved new best model with validation loss: 0.1012
+2025-02-04 00:53:23,476 | Epoch 9: Train Loss = 0.1033
+2025-02-04 00:53:23,737 | Epoch 9: Validation Loss = 0.1017
+2025-02-04 00:53:27,174 | Epoch 10: Train Loss = 0.1032
+2025-02-04 00:53:27,404 | Epoch 10: Validation Loss = 0.1012
+2025-02-04 00:53:27,429 | Saved new best model with validation loss: 0.1012
+2025-02-04 00:53:30,640 | Epoch 11: Train Loss = 0.1033
+2025-02-04 00:53:30,896 | Epoch 11: Validation Loss = 0.1018
+2025-02-04 00:53:30,898 | Early stopping triggered!

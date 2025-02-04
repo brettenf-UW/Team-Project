@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  training:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
+    ports:
+      - "6006:6006"

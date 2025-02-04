@@ -1,0 +1,36 @@
+training:
+  batch_size: 32
+  learning_rate: 0.001
+  num_epochs: 100
+  checkpoint_freq: 5
+
+model:
+  node_features: 5
+  sequence_length: 50
+  hidden_size: 128
+  num_gru_layers: 2
+  dropout: 0.2
+
+optimization:
+  weight_decay: 0.0001
+  gradient_clip_val: 1.0
+  scheduler:
+    type: 'cosine'
+    T_max: 100
+    eta_min: 1e-6
+
+
+data:
+  n_samples: 1000
+  sequence_length: 50
+  n_nodes: 10
+  node_features: 5
+  train_size: 0.8
+  num_workers: 4
+  pin_memory: True
+
+loss:
+  alpha: 0.2
+  beta: 0.1
+  gamma: 0.1
+  delta: 0.05
