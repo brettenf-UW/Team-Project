@@ -1,0 +1,36 @@
+2025-02-05 21:24:35,187 | Using device: cpu
+2025-02-05 21:24:46,427 | Epoch 0: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:46,660 | Epoch 0: Val Loss = 0.1184, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:46,691 | Saved new best model with validation loss: 0.1184
+2025-02-05 21:24:49,631 | Epoch 1: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:49,919 | Epoch 1: Val Loss = 0.1120, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:49,942 | Saved new best model with validation loss: 0.1120
+2025-02-05 21:24:52,562 | Epoch 2: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:52,772 | Epoch 2: Val Loss = 0.1103, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:52,795 | Saved new best model with validation loss: 0.1103
+2025-02-05 21:24:55,484 | Epoch 3: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:55,749 | Epoch 3: Val Loss = 0.1101, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:55,770 | Saved new best model with validation loss: 0.1101
+2025-02-05 21:24:58,381 | Epoch 4: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:58,597 | Epoch 4: Val Loss = 0.1101, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:24:58,618 | Saved new best model with validation loss: 0.1101
+2025-02-05 21:25:02,106 | Epoch 5: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:02,326 | Epoch 5: Val Loss = 0.1099, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:02,348 | Saved new best model with validation loss: 0.1099
+2025-02-05 21:25:05,909 | Epoch 6: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:06,250 | Epoch 6: Val Loss = 0.1097, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:06,273 | Saved new best model with validation loss: 0.1097
+2025-02-05 21:25:09,119 | Epoch 7: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:09,412 | Epoch 7: Val Loss = 0.1097, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:09,438 | Saved new best model with validation loss: 0.1097
+2025-02-05 21:25:12,181 | Epoch 8: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:12,497 | Epoch 8: Val Loss = 0.1101, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:15,359 | Epoch 9: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:15,588 | Epoch 9: Val Loss = 0.1098, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:19,481 | Epoch 10: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:19,756 | Epoch 10: Val Loss = 0.1098, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:22,799 | Epoch 11: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:23,327 | Epoch 11: Val Loss = 0.1099, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:27,528 | Epoch 12: Train Loss = 0.0000, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:27,768 | Epoch 12: Val Loss = 0.1097, MSE = 0.0000, R² = 0.0000
+2025-02-05 21:25:27,768 | Early stopping triggered!

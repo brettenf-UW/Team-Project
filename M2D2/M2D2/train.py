@@ -110,19 +110,26 @@ def train_epoch(
 ) -> dict:
     """Train for one epoch."""
     model.train()
-    total_loss = 0
-    loss_components = {
-        'mse_loss': 0,
-        'energy_conservation_loss': 0,
-        'entropy_loss': 0,
-        'free_energy_loss': 0,
-        'temporal_loss': 0
+    metrics_tracker = {
+        # Core performance metrics
+        'loss/total': 0,  # Overall training loss
+        'performance/mse': 0,  # Mean squared error
+        'performance/r2': 0,  # R² score for prediction accuracy
+        'performance/mape': 0,  # Mean Absolute Percentage Error
+        
+        # Important components of the loss
+        'loss_components/energy': 0,  # Energy conservation violation
+        'loss_components/entropy': 0,  # Entropy maximization term
+        'loss_components/prediction': 0,  # Direct prediction error
+        
+        # Data characteristics
+        'data/access_frequency': 0,  # Average access frequency
+        'data/temperature': 0,  # System temperature
     }
     
-    total_mse = 0
-    total_r2 = 0
-    
+    n_batches = len(train_loader)
     pbar = tqdm(train_loader, desc=f'Epoch {epoch}')
+    
     for batch_idx, batch in enumerate(pbar):
         # Move data to device
         batch = {k: v.to(device) for k, v in batch.items()}
@@ -153,58 +160,69 @@ def train_epoch(
         optimizer.step()
         
         # Update metrics
-        total_loss += loss_dict['total_loss'].item()
-        for k in loss_components.keys():
-            loss_components[k] += loss_dict[k].item()
-        
-        # Calculate additional metrics
         metrics = calculate_metrics(outputs, batch['labels'])
-        total_mse += metrics['mse']
-        total_r2 += metrics['r2']
+        for key, value in metrics.items():
+            if key in metrics_tracker:
+                metrics_tracker[key] += value
         
-        # Update progress bar
+        # Track important data characteristics
+        metrics_tracker['data/access_frequency'] += torch.mean(batch['access_history']).item()
+        metrics_tracker['data/temperature'] += torch.mean(batch['temperature']).item()
+        
+        # Update progress bar with key metrics
         pbar.set_postfix({
-            'loss': loss_dict['total_loss'].item(),
-            'mse': metrics['mse'],
-            'corr': f"{metrics['correlation']:.3f}",
-            'mape': f"{metrics['mape']:.1f}%"
+            'loss': metrics_tracker['loss/total'] / (batch_idx + 1),
+            'mse': metrics_tracker['performance/mse'] / (batch_idx + 1),
+            'r2': metrics_tracker['performance/r2'] / (batch_idx + 1)
         })
     
-    # Average losses
-    n_batches = len(train_loader)
-    avg_loss = total_loss / n_batches
-    avg_components = {k: v / n_batches for k, v in loss_components.items()}
-    
     # Average metrics
-    avg_mse = total_mse / len(train_loader)
-    avg_r2 = total_r2 / len(train_loader)
+    metrics_avg = {k: v / n_batches for k, v in metrics_tracker.items()}
     
-    # Log to TensorBoard
-    writer.add_scalar('Loss/train', avg_loss, epoch)
-    for k, v in avg_components.items():
-        writer.add_scalar(f'LossComponents/{k}', v, epoch)
+    # Log to TensorBoard without description parameter
+    for key, value in metrics_avg.items():
+        writer.add_scalar(f'Train/{key}', value, epoch)
+        # Add description as text tag instead (once per run)
+        if epoch == 0:
+            writer.add_text(
+                f'Descriptions/{key}',
+                get_metric_description(key),
+                epoch
+            )
     
-    # Log metrics
-    writer.add_scalar('Metrics/train_mse', avg_mse, epoch)
-    writer.add_scalar('Metrics/train_r2', avg_r2, epoch)
-    writer.add_scalar('Metrics/train_correlation', metrics['correlation'], epoch)
-    writer.add_scalar('Metrics/train_mape', metrics['mape'], epoch)
-    logging.info(f'Epoch {epoch}: MSE = {avg_mse:.4f}, R² = {avg_r2:.4f}, '
-                f'Correlation = {metrics["correlation"]:.4f}, MAPE = {metrics["mape"]:.1f}%')
-    
-    return avg_loss, avg_components, {'mse': avg_mse, 'r2': avg_r2}
+    return metrics_avg
+
+def get_metric_description(metric_key: str) -> str:
+    """Return description for each metric for TensorBoard tooltips."""
+    descriptions = {
+        'loss/total': 'Overall training loss combining all components',
+        'performance/mse': 'Mean Squared Error - Lower is better',
+        'performance/r2': 'R² Score (0-1) - Higher is better',
+        'performance/mape': 'Mean Absolute Percentage Error - Lower is better',
+        'loss_components/energy': 'Energy conservation violation term',
+        'loss_components/entropy': 'Entropy maximization component',
+        'loss_components/prediction': 'Direct prediction error component',
+        'data/access_frequency': 'Average frequency of data access',
+        'data/temperature': 'System temperature affecting access patterns'
+    }
+    return descriptions.get(metric_key, "No description available")
 
 def validate(
     model: torch.nn.Module,
     val_loader: DataLoader,
     criterion: ThermodynamicLoss,
-    device: torch.device
+    device: torch.device,
+    writer: SummaryWriter,
+    epoch: int
 ) -> float:
     """Validate the model."""
     model.eval()
-    total_loss = 0
-    total_mse = 0
-    total_r2 = 0
+    metrics_tracker = {
+        'loss/total': 0,
+        'performance/mse': 0,
+        'performance/r2': 0,
+        'performance/mape': 0
+    }
     
     with torch.no_grad():
         for batch in val_loader:
@@ -224,15 +242,28 @@ def validate(
                 batch['degeneracies'],
                 batch['access_history']
             )
-            total_loss += loss_dict['total_loss'].item()
+            metrics_tracker['loss/total'] += loss_dict['total_loss'].item()
             
             metrics = calculate_metrics(outputs, batch['labels'])
-            total_mse += metrics['mse']
-            total_r2 += metrics['r2']
+            for key, value in metrics.items():
+                if key in metrics_tracker:
+                    metrics_tracker[key] += value
     
-    avg_mse = total_mse / len(val_loader)
-    avg_r2 = total_r2 / len(val_loader)
-    return total_loss / len(val_loader), {'mse': avg_mse, 'r2': avg_r2}
+    # Average metrics
+    metrics_avg = {k: v / len(val_loader) for k, v in metrics_tracker.items()}
+    
+    # Log validation metrics without description parameter
+    for key, value in metrics_avg.items():
+        writer.add_scalar(f'Val/{key}', value, epoch)
+        # Add description as text tag instead (once per run)
+        if epoch == 0:
+            writer.add_text(
+                f'Descriptions/{key}',
+                get_metric_description(key),
+                epoch
+            )
+    
+    return metrics_avg
 
 def main():
     # Load configuration
@@ -301,36 +332,33 @@ def main():
     best_val_loss = float('inf')
     for epoch in range(config['training']['num_epochs']):
         # Train
-        train_loss, loss_components, train_metrics = train_epoch(
+        train_metrics = train_epoch(
             model, train_loader, criterion, optimizer, device, epoch, writer
         )
-        logging.info(f'Epoch {epoch}: Train Loss = {train_loss:.4f}, MSE = {train_metrics["mse"]:.4f}, R² = {train_metrics["r2"]:.4f}')
+        logging.info(f'Epoch {epoch}: Train Loss = {train_metrics["loss/total"]:.4f}, MSE = {train_metrics["performance/mse"]:.4f}, R² = {train_metrics["performance/r2"]:.4f}')
         
         # Validate
-        val_loss, val_metrics = validate(model, val_loader, criterion, device)
-        logging.info(f'Epoch {epoch}: Val Loss = {val_loss:.4f}, MSE = {val_metrics["mse"]:.4f}, R² = {val_metrics["r2"]:.4f}')
-        writer.add_scalar('Loss/val', val_loss, epoch)
-        writer.add_scalar('Metrics/val_mse', val_metrics['mse'], epoch)
-        writer.add_scalar('Metrics/val_r2', val_metrics['r2'], epoch)
+        val_metrics = validate(model, val_loader, criterion, device, writer, epoch)
+        logging.info(f'Epoch {epoch}: Val Loss = {val_metrics["loss/total"]:.4f}, MSE = {val_metrics["performance/mse"]:.4f}, R² = {val_metrics["performance/r2"]:.4f}')
         
         # Check early stopping
-        early_stopping(val_loss)
+        early_stopping(val_metrics['loss/total'])
         if early_stopping.early_stop:
             logging.info("Early stopping triggered!")
             break
         
         # Save checkpoint
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
+        if val_metrics['loss/total'] < best_val_loss:
+            best_val_loss = val_metrics['loss/total']
             checkpoint = {
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'val_loss': val_loss,
+                'val_loss': val_metrics['loss/total'],
                 'config': config
             }
             torch.save(checkpoint, save_dir / 'best_model.pt')
-            logging.info(f'Saved new best model with validation loss: {val_loss:.4f}')
+            logging.info(f'Saved new best model with validation loss: {val_metrics["loss/total"]:.4f}')
 
 if __name__ == '__main__':
     main()
