@@ -1,8 +1,15 @@
 training:
   batch_size: 32
   learning_rate: 0.001
-  num_epochs: 100
+  num_epochs: 50  # Reduced from 100
   checkpoint_freq: 5
+  early_stopping:
+    patience: 5   # Added early stopping parameters
+    min_delta: 0.00001  # Reduced to match new target MSE scale
+    min_epochs: 10
+    max_epochs_without_improvement: 10
+  target_mse: 0.0001  # Changed from 0.001 to 0.0001 for more stringent validation
+  max_epochs: 1000  # Increase max epochs since we're using raw values
 
 model:
   node_features: 5
@@ -10,15 +17,15 @@ model:
   hidden_size: 128
   num_gru_layers: 2
   dropout: 0.2
+  train_size: 0.8
 
 optimization:
-  weight_decay: 0.0001
-  gradient_clip_val: 1.0
+  weight_decay: 0.001  # Increased from 0.0001
+  gradient_clip_val: 0.5  # Reduced from 1.0
   scheduler:
     type: 'cosine'
-    T_max: 100
+    T_max: 50  # Match with num_epochs
     eta_min: 1e-6
-
 
 data:
   n_samples: 1000
@@ -28,9 +35,11 @@ data:
   train_size: 0.8
   num_workers: 4
   pin_memory: True
+  anomaly_rate: 0.05
 
 loss:
-  alpha: 0.2
-  beta: 0.1
-  gamma: 0.1
-  delta: 0.05
+  mse_weight: 1.0
+  alpha: 0.5    # Weighing factor for combined losses
+  beta: 0.5     # Temperature scaling factor
+  gamma: 0.1    # Additional regularization parameter
+  delta: 0.05   # Fine-tuning parameter

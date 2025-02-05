@@ -20,7 +20,7 @@ class EarlyStopping:
     """
     Early stopping to stop training when the validation loss does not improve after a given patience.
     """
-    def __init__(self, patience=5, min_delta=0, verbose=False):
+    def __init__(self, patience=5, min_delta=0.001, verbose=False, min_epochs=10):
         """
         Args:
             patience (int): How many epochs to wait after the last time the validation loss improved.
@@ -29,20 +29,31 @@ class EarlyStopping:
                             Default: 0
             verbose (bool): If True, prints a message for each validation loss improvement.
                             Default: False
+            min_epochs (int): Minimum number of epochs to train before considering early stopping.
+                            Default: 10
         """
         self.patience = patience
         self.min_delta = min_delta
         self.verbose = verbose
+        self.min_epochs = min_epochs
         self.counter = 0
         self.best_loss = None
         self.early_stop = False
+        self.min_epochs_reached = False
 
-    def __call__(self, val_loss):
+    def __call__(self, val_loss, epoch):
         """
         Call this method every epoch to check if training should stop.
         Args:
             val_loss (float): The validation loss from the current epoch.
+            epoch (int): The current epoch number.
         """
+        # Don't stop before minimum epochs
+        if epoch < self.min_epochs:
+            return
+        
+        self.min_epochs_reached = True
+        
         if self.best_loss is None:
             # First epoch, set the best loss
             self.best_loss = val_loss
@@ -51,7 +62,7 @@ class EarlyStopping:
             self.counter += 1
             if self.verbose:
                 print(f"EarlyStopping counter: {self.counter} out of {self.patience}")
-            if self.counter >= self.patience:
+            if self.counter >= self.patience and self.min_epochs_reached:
                 self.early_stop = True
         else:
             # Validation loss improved
@@ -62,14 +73,31 @@ class EarlyStopping:
 
 def setup_logging(save_dir: Path):
     """Setup logging configuration."""
+    # Create debug directory
+    debug_dir = save_dir.parent / 'debug'
+    debug_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Create timestamped debug file
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    debug_file = debug_dir / f'debug_{timestamp}.txt'
+    
+    # Setup logging with multiple handlers
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s | %(message)s',
+        level=logging.DEBUG,
+        format='%(asctime)s | %(levelname)s | %(message)s',
         handlers=[
             logging.FileHandler(save_dir / 'train.log'),
+            logging.FileHandler(debug_file),  # Additional debug file
             logging.StreamHandler()
         ]
     )
+    
+    # Log system info
+    logging.debug("\n=== System Information ===")
+    logging.debug(f"Device: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU'}")
+    logging.debug(f"PyTorch Version: {torch.__version__}")
+    logging.debug(f"Debug file location: {debug_file}")
+    logging.debug("="*30 + "\n")
 
 def load_config(config_path: str) -> dict:
     """Load configuration from YAML file."""
@@ -77,26 +105,23 @@ def load_config(config_path: str) -> dict:
         return yaml.safe_load(f)
 
 def calculate_metrics(outputs: torch.Tensor, targets: torch.Tensor) -> dict:
-    """Calculate MSE, R², correlation, and MAPE."""
-    # Convert to numpy for calculations
+    """Calculate raw MSE metrics."""
     outputs_np = outputs.detach().cpu().numpy()
-    targets_np = targets.cpu().numpy()
+    targets_np = targets.detach().cpu().numpy()
     
-    # Calculate existing metrics
-    mse = torch.mean((outputs - targets) ** 2).item()
-    r2 = r2_score(targets_np, outputs_np)
+    # Calculate raw MSE directly
+    mse = float(np.mean((outputs_np - targets_np) ** 2))
     
-    # Add correlation coefficient
-    corr, _ = pearsonr(targets_np.flatten(), outputs_np.flatten())
-    
-    # Calculate MAPE (Mean Absolute Percentage Error)
-    mape = np.mean(np.abs((targets_np - outputs_np) / (targets_np + 1e-8))) * 100
+    # Calculate r2 score on raw values
+    target_var = np.var(targets_np)
+    if target_var > 1e-10:
+        r2 = r2_score(targets_np.flatten(), outputs_np.flatten())
+    else:
+        r2 = 0.0
     
     return {
-        'mse': mse, 
-        'r2': r2,
-        'correlation': corr,
-        'mape': mape
+        'mse': mse,
+        'r2': r2
     }
 
 def train_epoch(
@@ -110,27 +135,29 @@ def train_epoch(
 ) -> dict:
     """Train for one epoch."""
     model.train()
+    
+    # Add more detailed logging
+    logging.debug("\n" + "="*50)
+    logging.debug(f"Starting epoch {epoch}")
+    logging.debug("="*50)
+    
     metrics_tracker = {
-        # Core performance metrics
-        'loss/total': 0,  # Overall training loss
-        'performance/mse': 0,  # Mean squared error
-        'performance/r2': 0,  # R² score for prediction accuracy
-        'performance/mape': 0,  # Mean Absolute Percentage Error
-        
-        # Important components of the loss
-        'loss_components/energy': 0,  # Energy conservation violation
-        'loss_components/entropy': 0,  # Entropy maximization term
-        'loss_components/prediction': 0,  # Direct prediction error
-        
-        # Data characteristics
-        'data/access_frequency': 0,  # Average access frequency
-        'data/temperature': 0,  # System temperature
+        'loss': 0.0,  # Simplified metrics - just track what we need
+        'mse': 0.0
     }
     
     n_batches = len(train_loader)
-    pbar = tqdm(train_loader, desc=f'Epoch {epoch}')
     
+    # Add batch counter for proper averaging
+    batch_counts = {k: 0 for k in metrics_tracker.keys()}
+    
+    pbar = tqdm(train_loader, desc=f'Epoch {epoch}')
     for batch_idx, batch in enumerate(pbar):
+        # Add detailed batch logging
+        if batch_idx % 10 == 0:  # Reduced logging frequency
+            logging.info(f"\nBatch {batch_idx}/{len(train_loader)}")
+            logging.info(f"Current MSE: {metrics_tracker['mse']/(batch_idx+1):.6f}")
+        
         # Move data to device
         batch = {k: v.to(device) for k, v in batch.items()}
         
@@ -153,42 +180,48 @@ def train_epoch(
             batch['access_history']
         )
         
+        # Update loss components
+        metrics_tracker['loss'] += loss_dict['total_loss'].item()
+        
         # Backward pass
         optimizer.zero_grad()
         loss_dict['total_loss'].backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer.step()
         
-        # Update metrics
+        # Calculate metrics
         metrics = calculate_metrics(outputs, batch['labels'])
-        for key, value in metrics.items():
-            if key in metrics_tracker:
-                metrics_tracker[key] += value
         
-        # Track important data characteristics
-        metrics_tracker['data/access_frequency'] += torch.mean(batch['access_history']).item()
-        metrics_tracker['data/temperature'] += torch.mean(batch['temperature']).item()
+        # Update metrics with proper accumulation
+        metrics_tracker['mse'] += metrics['mse']
         
-        # Update progress bar with key metrics
+        # Update batch counts
+        for k in batch_counts:
+            batch_counts[k] += 1
+        
+        # Cleaner progress bar without scaling
         pbar.set_postfix({
-            'loss': metrics_tracker['loss/total'] / (batch_idx + 1),
-            'mse': metrics_tracker['performance/mse'] / (batch_idx + 1),
-            'r2': metrics_tracker['performance/r2'] / (batch_idx + 1)
+            'MSE': f'{metrics["mse"]:.6f}',
+            'Loss': f'{loss_dict["total_loss"].item():.6f}'
         })
+        
+        # Reduced logging without scaling
+        if batch_idx == 0 or batch_idx == n_batches - 1:
+            logging.info(f"Batch {batch_idx} metrics:")
+            logging.info(f"MSE: {metrics['mse']:.6f}")
+            logging.info(f"Loss: {loss_dict['total_loss'].item():.6f}")
     
-    # Average metrics
-    metrics_avg = {k: v / n_batches for k, v in metrics_tracker.items()}
+    # Properly average metrics
+    metrics_avg = {
+        k: v / max(batch_counts[k], 1) for k, v in metrics_tracker.items()
+    }
     
-    # Log to TensorBoard without description parameter
-    for key, value in metrics_avg.items():
-        writer.add_scalar(f'Train/{key}', value, epoch)
-        # Add description as text tag instead (once per run)
-        if epoch == 0:
-            writer.add_text(
-                f'Descriptions/{key}',
-                get_metric_description(key),
-                epoch
-            )
+    # TensorBoard logging with raw MSE
+    writer.add_scalar('Training/MSE', metrics_avg['mse'], epoch)
+    writer.add_scalar('Training/Loss', metrics_avg['loss'], epoch)
+    
+    logging.info(f'Epoch {epoch}: Loss = {metrics_avg["loss"]:.4f}, '
+                f'MSE = {metrics_avg["mse"]:.4f}')
     
     return metrics_avg
 
@@ -207,21 +240,12 @@ def get_metric_description(metric_key: str) -> str:
     }
     return descriptions.get(metric_key, "No description available")
 
-def validate(
-    model: torch.nn.Module,
-    val_loader: DataLoader,
-    criterion: ThermodynamicLoss,
-    device: torch.device,
-    writer: SummaryWriter,
-    epoch: int
-) -> float:
+def validate(model, val_loader, criterion, device, writer, epoch, config, last_val_metrics=None):
     """Validate the model."""
     model.eval()
     metrics_tracker = {
-        'loss/total': 0,
-        'performance/mse': 0,
-        'performance/r2': 0,
-        'performance/mape': 0
+        'loss': 0.0,
+        'mse': 0.0
     }
     
     with torch.no_grad():
@@ -242,28 +266,25 @@ def validate(
                 batch['degeneracies'],
                 batch['access_history']
             )
-            metrics_tracker['loss/total'] += loss_dict['total_loss'].item()
+            metrics_tracker['loss'] += loss_dict['total_loss'].item()
             
+            # Calculate raw MSE without scaling
             metrics = calculate_metrics(outputs, batch['labels'])
-            for key, value in metrics.items():
-                if key in metrics_tracker:
-                    metrics_tracker[key] += value
+            metrics_tracker['mse'] += metrics['mse']
     
     # Average metrics
     metrics_avg = {k: v / len(val_loader) for k, v in metrics_tracker.items()}
     
-    # Log validation metrics without description parameter
-    for key, value in metrics_avg.items():
-        writer.add_scalar(f'Val/{key}', value, epoch)
-        # Add description as text tag instead (once per run)
-        if epoch == 0:
-            writer.add_text(
-                f'Descriptions/{key}',
-                get_metric_description(key),
-                epoch
-            )
+    # Log validation metrics
+    writer.add_scalar('Validation/MSE', metrics_avg['mse'], epoch)
+    writer.add_scalar('Validation/Loss', metrics_avg['loss'], epoch)
     
-    return metrics_avg
+    # Log relative improvement if we have previous metrics
+    if last_val_metrics is not None:
+        mse_improvement = ((last_val_metrics['mse'] - metrics_avg['mse']) / last_val_metrics['mse']) * 100
+        logging.info(f"MSE improvement: {mse_improvement:.2f}%")
+    
+    return metrics_avg, metrics_avg['mse'] <= config['training']['target_mse']
 
 def main():
     # Load configuration
@@ -327,38 +348,76 @@ def main():
         weight_decay=config['optimization']['weight_decay']
     )
     
-    # Training loop
-    early_stopping = EarlyStopping(patience=10, min_delta=0.001, verbose=True)
+    # Training loop with maximum duration check
+    early_stopping = EarlyStopping(
+        patience=config['training']['early_stopping']['patience'],
+        min_delta=config['training']['early_stopping']['min_delta'],
+        verbose=True,
+        min_epochs=config['training']['early_stopping']['min_epochs']
+    )
+    
     best_val_loss = float('inf')
-    for epoch in range(config['training']['num_epochs']):
+    max_epochs = config['training']['num_epochs']
+    max_no_improve = config['training']['early_stopping']['max_epochs_without_improvement']
+    epochs_no_improve = 0
+    
+    start_time = time.time()
+    max_training_time = 3600 * 2  # 2 hours maximum
+    
+    last_val_metrics = None
+    
+    for epoch in range(max_epochs):
+        # Check training time
+        if time.time() - start_time > max_training_time:
+            logging.info("Maximum training time reached. Stopping training.")
+            break
+        
         # Train
         train_metrics = train_epoch(
             model, train_loader, criterion, optimizer, device, epoch, writer
         )
-        logging.info(f'Epoch {epoch}: Train Loss = {train_metrics["loss/total"]:.4f}, MSE = {train_metrics["performance/mse"]:.4f}, R² = {train_metrics["performance/r2"]:.4f}')
+        logging.info(f'Epoch {epoch}: Loss = {train_metrics["loss"]:.4f}, '
+                    f'MSE = {train_metrics["mse"]:.4f}')
         
-        # Validate
-        val_metrics = validate(model, val_loader, criterion, device, writer, epoch)
-        logging.info(f'Epoch {epoch}: Val Loss = {val_metrics["loss/total"]:.4f}, MSE = {val_metrics["performance/mse"]:.4f}, R² = {val_metrics["performance/r2"]:.4f}')
+        # Validate with last metrics
+        val_metrics, target_reached = validate(
+            model, val_loader, criterion, device, writer, epoch, config, last_val_metrics
+        )
+        logging.info(f'Val: Loss = {val_metrics["loss"]:.4f}, '
+                    f'MSE = {val_metrics["mse"]:.4f}')
+        
+        # Update last_val_metrics for next epoch
+        last_val_metrics = val_metrics
+        
+        if target_reached:
+            logging.info("Target MSE reached. Stopping training.")
+            break
         
         # Check early stopping
-        early_stopping(val_metrics['loss/total'])
+        early_stopping(val_metrics['loss'], epoch)
         if early_stopping.early_stop:
             logging.info("Early stopping triggered!")
             break
         
-        # Save checkpoint
-        if val_metrics['loss/total'] < best_val_loss:
-            best_val_loss = val_metrics['loss/total']
+        # Check for improvement
+        if val_metrics['loss'] < best_val_loss - config['training']['early_stopping']['min_delta']:
+            best_val_loss = val_metrics['loss']
+            epochs_no_improve = 0
+            # Save checkpoint
             checkpoint = {
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'val_loss': val_metrics['loss/total'],
+                'val_loss': val_metrics['loss'],
                 'config': config
             }
             torch.save(checkpoint, save_dir / 'best_model.pt')
-            logging.info(f'Saved new best model with validation loss: {val_metrics["loss/total"]:.4f}')
+            logging.info(f'Saved new best model with validation loss: {val_metrics["loss"]:.4f}')
+        else:
+            epochs_no_improve += 1
+            if epochs_no_improve >= max_no_improve:
+                logging.info(f"No improvement for {max_no_improve} epochs. Stopping training.")
+                break
 
 if __name__ == '__main__':
     main()

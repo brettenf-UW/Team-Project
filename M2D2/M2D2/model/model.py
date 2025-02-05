@@ -106,8 +106,8 @@ class StatMechThermodynamicModule(nn.Module):
         output = output.reshape(batch_size, n_nodes)  # Use .reshape()
         print(f"output shape: {output.shape}")  # Debug print
         
-        # Apply softmax to get valid probability distribution
-        return torch.softmax(output, dim=-1)
+        # Return raw logits instead of softmax
+        return output  # Remove softmax here
     
     def _process_history(self, access_history: torch.Tensor) -> torch.Tensor:
         """Process access history with attention mechanism."""

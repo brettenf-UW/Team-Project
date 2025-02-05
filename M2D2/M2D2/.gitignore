@@ -1,0 +1,7 @@
+# ...existing code...
+
+# Debug files
+debug/
+*.log
+
+# ...existing code...

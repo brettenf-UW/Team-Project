@@ -7,3 +7,16 @@ services:
       - ./checkpoints:/app/checkpoints
     ports:
       - "6006:6006"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_LEVEL=DEBUG
+    tty: true
+    command: >
+      bash -c "python train.py 2>&1 | tee /app/checkpoints/training.log & 
+      tensorboard --logdir=checkpoints --host=0.0.0.0"
+    networks:
+      - m2d2_network
+
+networks:
+  m2d2_network:
+    driver: bridge
